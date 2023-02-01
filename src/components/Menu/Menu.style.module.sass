@@ -1,0 +1,13 @@
+@import "src/styles/mixins"
+
+.menu
+  border-top: 1px solid $c-stroke
+  @include column
+  @include cell-240
+
+  &__wrapper
+    background-color: $c-light-grey
+    @include cell-240
+
+.column
+  @include column

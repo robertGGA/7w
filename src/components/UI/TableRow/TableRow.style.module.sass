@@ -1,0 +1,61 @@
+@import "src/styles/mixins"
+
+.row
+  display: grid
+  align-items: center
+  grid-template-columns: 1fr 3fr repeat(4, 1fr)
+  padding: 16px 0
+
+
+  form
+    display: flex
+    flex-direction: row
+    justify-content: space-between
+    width: 100%
+
+  input
+    border: 1px solid $c-stroke
+    border-radius: 6px
+    background: $c-dark-grey
+    color: $c-font-secondary
+    padding: 10px
+    @include content-14
+    width: 100%
+
+    &:focus, &::placeholder
+      background: $c-dark-grey
+
+.icon
+  display: flex
+
+.container
+  border-radius: 6px
+  padding: 6px
+  display: flex
+  align-items: center
+
+
+.delete
+
+  &__container
+    background-color: $c-stroke
+    @extend .container
+    max-width: 54px
+    width: 100%
+    justify-content: space-between
+
+    button
+      display: flex
+      border: none
+      background: none
+
+      &:hover
+        opacity: 0.8
+
+.input
+  &__wrapper
+    display: flex
+    margin-right: 24px
+
+
+

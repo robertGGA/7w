@@ -1,0 +1,52 @@
+@import "src/styles/mixins"
+
+.main
+  @include row
+  width: 100%
+  background: $c-dark-grey
+
+.menu
+  @include column
+  @include cell-240
+  background-color: $c-light-grey
+  border-top: 1px solid $c-stroke
+  border-right: 1px solid $c-stroke
+
+  &__wrapper
+    border-right: 1px solid $c-stroke
+    border-top: 1px solid $c-stroke
+    background-color: $c-light-grey
+
+  &__description
+    @include row
+    align-items: center
+    justify-content: space-between
+    color: $c-font
+    padding: 8px 13px 8px 20px
+    @include cell-240
+    max-height: 44px
+
+    span
+      @include content-10
+
+.project
+
+  &__container
+    display: flex
+    border-bottom: 1px solid $c-stroke
+    border-top: 1px solid $c-stroke
+    width: 100%
+    background: $c-light-grey
+
+    span
+      padding: 11px 15px 12px 15px
+      @include content-18
+      color: white
+      border-right: 1px solid $c-stroke
+      max-height: 44px
+
+.table
+
+  &__wrapper
+    width: 100%
+    @include column

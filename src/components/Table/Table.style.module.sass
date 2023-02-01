@@ -1,0 +1,23 @@
+@import "src/styles/mixins"
+
+.table
+  display: grid
+  padding: 11px 22px
+  color: #A1A1AA
+  width: 100%
+  border-top: 1px solid $c-stroke
+
+  &__nested
+    @extend .table
+    padding: 0
+
+  &__row
+    display: grid
+    grid-template-columns: 1fr 3fr repeat(4, 1fr)
+    align-items: center
+    justify-content: space-between
+    margin-bottom: 12px
+
+    div
+      &:nth-child(2)
+        flex-grow: 0.5

@@ -3,6 +3,9 @@ import {Menu} from "../../components/Menu/Menu";
 import {Project} from "../../components/Menu/Menu.types";
 import Icon from "../../components/UI/Icon/Icon";
 import {Table} from "../../components/Table/Table";
+import {useEffect, useState} from "react";
+import {getTreeData} from "../../api";
+import {TreeResponse} from "../../models";
 
 export function Profile() {
     const menuData: Array<Project> = [
@@ -13,43 +16,17 @@ export function Profile() {
         {id: 4, name: 'СМР'},
         {id: 5, name: 'График'},
         {id: 6, name: 'МиМ'},
-    ]
-    const data = [
-        {
-            child: [
-                {
-                    name: 'child1',
-                    child: [
-                        {
-                            child: [
-                                {
-                                    name: 'child2',
-                                    child: [
-                                        {
-                                            name: 'child3'
-                                        }
-                                    ]
-                                }
-                            ],
-                            name: 'kek'
-                        }
-                    ]
-                }
-            ],
-            name: 'parent1'
-        },
-        {
-            name: 'parent2',
-            child: [
-                {
-                    name: 'child3'
-                },
-                {
-                    name: 'child3'
-                }
-            ]
-        }
     ];
+    const [tree, setTree] = useState<Array<TreeResponse>>();
+
+    useEffect(() => {
+        const getResult = async () => {
+            getTreeData().then(r => {
+                setTree(r.data);
+            })
+        };
+        getResult();
+    }, [])
 
     return (
         <main className={styles.main}>
@@ -75,7 +52,7 @@ export function Profile() {
                     </span>
                 </div>
 
-                <Table data={data} />
+                <Table updateState={setTree} data={tree} />
             </div>
         </main>
     )

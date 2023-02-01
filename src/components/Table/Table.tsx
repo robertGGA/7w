@@ -1,14 +1,16 @@
 import styles from './Table.style.module.sass';
 import {TableRow} from "../UI/TableRow/TableRow";
-import {CSSProperties} from "react";
+import {CSSProperties, useCallback} from "react";
+import {TreeResponse} from "../../models";
 
 interface TableData {
-    data: Array<any>,
+    data: Array<TreeResponse> | undefined,
     nesting?: number,
-    style?: CSSProperties
+    style?: CSSProperties,
+    updateState: Function
 }
 
-export function Table({data, nesting = 0, style}: TableData) {
+export function Table({data, nesting = 0, style, updateState}: TableData) {
 
     const toTree = (elem: any) => {
         elem.forEach((item: any) => {
@@ -17,14 +19,12 @@ export function Table({data, nesting = 0, style}: TableData) {
             }
         })
     }
+    const cachedFunc = useCallback(updateState, [data?.length])
 
-    const addIndent = () => {
-        console.log(style);
-    }
 
     return (
         <div className={nesting === 0 ? styles.table : styles.table__nested}>
-            {nesting === 0 ? <div className={styles.table__row}>
+            {nesting === 0 ?? <div className={styles.table__row}>
                 <div>
                     Уровень
                 </div>
@@ -43,14 +43,20 @@ export function Table({data, nesting = 0, style}: TableData) {
                 <div>
                     Сметная прибыль
                 </div>
-            </div> : null}
+            </div>}
             <div>
-                {data.map((item: any) => (
-                    <>
-                        <TableRow style={style} key={item.name} name={item.name} columnsData={['test', '333', '4444', '5555', '6666']}/>
-                        {(item.child && item.child.length) ? <Table style={{marginLeft: 12 * (nesting + 1)}} nesting={nesting + 1} data={item.child}/> : null}
-                    </>
-                ))}
+                {data?.length ? data.map((item: TreeResponse) => (
+                        <div key={item.id}>
+                            <TableRow style={style} updateState={cachedFunc}
+                                      columnsData={item}/>
+                            {(item.child && item.child.length) ??
+                                <Table updateState={updateState} style={{marginLeft: 12 * (nesting + 1)}}
+                                       nesting={nesting + 1}
+                                       data={item.child}/>}
+                        </div>
+                    )) :
+                    <TableRow isEmpty={true} style={style} updateState={cachedFunc} columnsData={{} as TreeResponse}/>
+                }
             </div>
         </div>
     )

@@ -55,14 +55,13 @@ export function TableRow({name, style, columnsData}: kek) {
                               handleSubmit();
                           }
                       }}
-                      style={style}
                       className={styles.row}
                 >
                     {!isHovered || isEditable ?
-                        <div className={styles.container} onMouseEnter={(e) => dragStartHandler(e)}>
+                        <div style={style} className={styles.container} onMouseEnter={(e) => dragStartHandler(e)}>
                             <Icon name='level' width={16} height={16}/>
                         </div> :
-                        <div className={styles.delete__container} onMouseLeave={(e) => dragEndHandler(e)}>
+                        <div style={style} className={styles.delete__container} onMouseLeave={(e) => dragEndHandler(e)}>
                             <Icon name='level' width={16} height={16}/>
                             <button onClick={removeItem}>
                                 <Icon name='trash' width={16} height={16}/>

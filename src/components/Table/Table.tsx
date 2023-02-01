@@ -4,11 +4,11 @@ import {CSSProperties} from "react";
 
 interface TableData {
     data: Array<any>,
-    isFirst?: boolean,
+    nesting?: number,
     style?: CSSProperties
 }
 
-export function Table({data, isFirst = true, style}: TableData) {
+export function Table({data, nesting = 0, style}: TableData) {
 
     const toTree = (elem: any) => {
         elem.forEach((item: any) => {
@@ -17,9 +17,14 @@ export function Table({data, isFirst = true, style}: TableData) {
             }
         })
     }
+
+    const addIndent = () => {
+        console.log(style);
+    }
+
     return (
-        <div style={style} className={isFirst ? styles.table : styles.table__nested}>
-            {isFirst ? <div className={styles.table__row}>
+        <div className={nesting === 0 ? styles.table : styles.table__nested}>
+            {nesting === 0 ? <div className={styles.table__row}>
                 <div>
                     Уровень
                 </div>
@@ -42,8 +47,8 @@ export function Table({data, isFirst = true, style}: TableData) {
             <div>
                 {data.map((item: any) => (
                     <>
-                        <TableRow key={item.name} name={item.name} columnsData={['test', '333', '4444', '5555', '6666']}/>
-                        {(item.child && item.child.length) ? <Table isFirst={false} data={item.child}/> : null}
+                        <TableRow style={style} key={item.name} name={item.name} columnsData={['test', '333', '4444', '5555', '6666']}/>
+                        {(item.child && item.child.length) ? <Table style={{marginLeft: 12 * (nesting + 1)}} nesting={nesting + 1} data={item.child}/> : null}
                     </>
                 ))}
             </div>

@@ -11,20 +11,11 @@ interface TableData {
 }
 
 export function Table({data, nesting = 0, style, updateState}: TableData) {
-
-    const toTree = (elem: any) => {
-        elem.forEach((item: any) => {
-            if (item.child) {
-                toTree(item.child);
-            }
-        })
-    }
     const cachedFunc = useCallback(updateState, [data?.length])
 
-
     return (
-        <div className={nesting === 0 ? styles.table : styles.table__nested}>
-            {nesting === 0 ?? <div className={styles.table__row}>
+        <div className={(nesting === 0) ? styles.table : styles.table__nested}>
+            {(nesting == 0) && <div className={styles.table__row}>
                 <div>
                     Уровень
                 </div>
@@ -44,20 +35,20 @@ export function Table({data, nesting = 0, style, updateState}: TableData) {
                     Сметная прибыль
                 </div>
             </div>}
-            <div>
+            <>
                 {data?.length ? data.map((item: TreeResponse) => (
                         <div key={item.id}>
                             <TableRow style={style} updateState={cachedFunc}
                                       columnsData={item}/>
-                            {(item.child && item.child.length) ??
+                            {(item.child && item.child.length) ?
                                 <Table updateState={updateState} style={{marginLeft: 12 * (nesting + 1)}}
                                        nesting={nesting + 1}
-                                       data={item.child}/>}
+                                       data={item.child}/> : null}
                         </div>
                     )) :
                     <TableRow isEmpty={true} style={style} updateState={cachedFunc} columnsData={{} as TreeResponse}/>
                 }
-            </div>
+            </>
         </div>
     )
 }

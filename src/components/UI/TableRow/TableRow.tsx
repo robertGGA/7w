@@ -105,7 +105,6 @@ export function TableRow({style, columnsData, updateState, isEmpty = false, pare
             enableReinitialize
             onSubmit={(values) => {
                 onSubmitRow(values);
-                console.log(values);
             }}
         >
             {({

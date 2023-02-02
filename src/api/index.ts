@@ -1,5 +1,5 @@
 import axios from "axios";
-import {OutlayRowRequest} from "../models";
+import {OutlayRowRequest, OutlayRowUpdateRequest} from "../models";
 
 const {REACT_APP_API_ENDPOINT} = process.env;
 const {REACT_APP_EID} = process.env;
@@ -18,6 +18,10 @@ export const getTreeData = () => {
 export const createRow = (data: OutlayRowRequest) => {
     return axios.post(`v1/outlay-rows/entity/${REACT_APP_EID}/row/create`, data);
 };
+
+export const updateRow = (rId: number, data: OutlayRowUpdateRequest) => {
+    return axios.post(`/v1/outlay-rows/entity/${REACT_APP_EID}/row/${rId}/update`, data);
+}
 
 
 export default instance;

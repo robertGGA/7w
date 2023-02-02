@@ -2,18 +2,19 @@ import styles from './TableRow.style.module.sass';
 import Icon from "../Icon/Icon";
 import React, {CSSProperties, useState} from "react";
 import {Formik, FormikValues} from 'formik';
-import {OutlayRowRequest, TreeResponse} from "../../../models";
-import {createRow, deleteRow, getTreeData} from "../../../api";
-import {RowSchema} from "./TableRow.service";
+import {OutlayRowRequest, OutlayRowUpdateRequest, TreeResponse} from "../../../models";
+import {createRow, deleteRow, getTreeData, updateRow} from "../../../api";
+import {updateTree} from "./TableRow.service";
 
 interface rowProps {
     style?: CSSProperties,
     columnsData: TreeResponse,
     updateState: Function,
-    isEmpty?: boolean
+    isEmpty?: boolean,
+    parentId?: number | null
 }
 
-export function TableRow({style, columnsData, updateState, isEmpty = false}: rowProps) {
+export function TableRow({style, columnsData, updateState, isEmpty = false, parentId = null}: rowProps) {
     const [isHovered, setIsHovered] = useState(false);
     const [isEditable, setIsEditable] = useState(isEmpty);
 
@@ -68,9 +69,29 @@ export function TableRow({style, columnsData, updateState, isEmpty = false}: row
             }
             createItem(item);
             setIsEditable(false);
+        } else {
+            const item: OutlayRowUpdateRequest = {
+                equipmentCosts: Number(values.equipment),
+                estimatedProfit: Number(values.profit),
+                machineOperatorSalary: 0,
+                mainCosts: 0,
+                materials: 0,
+                mimExploitation: 0,
+                overheads: Number(values.expenses),
+                rowName: values.work,
+                salary: Number(values.salary),
+                supportCosts: 0
+            }
+            updateRow(columnsData.id, item).then(() => {
+                updateState((v: any) => {
+                    return [updateTree(v, columnsData.id, item)]
+                });
+                setIsEditable(false);
+            }).catch(() => {
+                alert('Неверный id');
+            })
         }
-    }
-
+    };
 
     return (
         <Formik
@@ -81,7 +102,11 @@ export function TableRow({style, columnsData, updateState, isEmpty = false}: row
                 expenses: columnsData.overheads ?? 0,
                 profit: columnsData.estimatedProfit ?? 0
             }}
-            onSubmit={(values) => onSubmitRow(values)}
+            enableReinitialize
+            onSubmit={(values) => {
+                onSubmitRow(values);
+                console.log(values);
+            }}
         >
             {({
                   values,

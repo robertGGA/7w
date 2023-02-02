@@ -30,10 +30,28 @@ export const updateTree = (tree: Array<TreeResponse>,
                     estimatedProfit: newValue.estimatedProfit,
                     overheads: newValue.overheads
                 };
-                console.log(result.map(res => res.id === item.id ? item : res));
                 result = result.map(res => res.id === item.id ? item : res);
             } else {
-                if (tree.every(item => item.id === id) && isArray(tree)) updateTree(item.child, id, newValue);
+                if (tree.every(item => item.id === id) && isArray(tree)) item.child = updateTree(item.child, id, newValue);
+                result = result.map(res => res.id === item.id ? item : res);
+            }
+        })
+        return result;
+    }
+}
+
+export const removeItemFromTree = (tree: Array<TreeResponse>,
+                           id: number) => {
+    if (isArray(tree)) {
+        let result = [...tree];
+
+        result.forEach((item) => {
+            if (item.id === id) {
+                result = result.filter((item => item.id !== id));
+            } else {
+                if (tree.every(item => item.id === id) && isArray(tree)) { // @ts-ignore
+                    result = removeItemFromTree(item.child, id);
+                }
             }
         })
         return result;

@@ -15,7 +15,7 @@ export function Table({data, nesting = 0, style, updateState}: TableData) {
 
     return (
         <div className={(nesting === 0) ? styles.table : styles.table__nested}>
-            {(nesting == 0) && <div className={styles.table__row}>
+            {(nesting === 0) && <div className={styles.table__row}>
                 <div>
                     Уровень
                 </div>
@@ -41,12 +41,12 @@ export function Table({data, nesting = 0, style, updateState}: TableData) {
                             <TableRow style={style} updateState={cachedFunc}
                                       columnsData={item}/>
                             {(item.child && item.child.length) ?
-                                <Table updateState={updateState} style={{marginLeft: 12 * (nesting + 1)}}
+                                <Table key={item.id} updateState={updateState} style={{marginLeft: 12 * (nesting + 1)}}
                                        nesting={nesting + 1}
                                        data={item.child}/> : null}
                         </div>
                     )) :
-                    <TableRow isEmpty={true} style={style} updateState={cachedFunc} columnsData={{} as TreeResponse}/>
+                    <TableRow  isEmpty={true} style={style} updateState={cachedFunc} columnsData={{} as TreeResponse}/>
                 }
             </>
         </div>

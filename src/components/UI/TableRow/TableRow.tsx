@@ -4,7 +4,7 @@ import React, {CSSProperties, useState} from "react";
 import {Formik, FormikValues} from 'formik';
 import {OutlayRowRequest, OutlayRowUpdateRequest, TreeResponse} from "../../../models";
 import {createRow, deleteRow, getTreeData, updateRow} from "../../../api";
-import {updateTree} from "./TableRow.service";
+import {removeItemFromTree, updateTree} from "./TableRow.service";
 
 interface rowProps {
     style?: CSSProperties,
@@ -34,9 +34,10 @@ export function TableRow({style, columnsData, updateState, isEmpty = false, pare
         e.preventDefault();
     }
 
-    const removeItem = () => {
+    const removeItem = (e: any) => {
+        e.preventDefault();
         deleteRow(columnsData.id).then(() => {
-            updateState((v: Array<TreeResponse>) => [...v.filter((item) => item.id !== columnsData.id)]);
+            updateState((v: Array<TreeResponse>) => removeItemFromTree(v, columnsData.id));
         }).catch(() => {
             alert('Что-то пошло не так');
         })
@@ -84,7 +85,7 @@ export function TableRow({style, columnsData, updateState, isEmpty = false, pare
             }
             updateRow(columnsData.id, item).then(() => {
                 updateState((v: any) => {
-                    return [updateTree(v, columnsData.id, item)]
+                    return updateTree(v, columnsData.id, item)
                 });
                 setIsEditable(false);
             }).catch(() => {
@@ -127,7 +128,7 @@ export function TableRow({style, columnsData, updateState, isEmpty = false, pare
                         </div> :
                         <div style={style} className={styles.delete__container} onMouseLeave={(e) => dragEndHandler(e)}>
                             <Icon name='level' width={16} height={16}/>
-                            <button onClick={removeItem}>
+                            <button onClick={(e) => removeItem(e)}>
                                 <Icon name='trash' width={16} height={16}/>
                             </button>
                         </div>

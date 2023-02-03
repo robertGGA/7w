@@ -38,7 +38,7 @@ export function Table({data, nesting = 0, style, updateState}: TableData) {
             <>
                 {data?.length ? data.map((item: TreeResponse) => (
                         <div key={item.id}>
-                            <TableRow style={style} updateState={cachedFunc}
+                            <TableRow  style={style} updateState={cachedFunc}
                                       columnsData={item}/>
                             {(item.child && item.child.length) ?
                                 <Table key={item.id} updateState={updateState} style={{marginLeft: 12 * (nesting + 1)}}

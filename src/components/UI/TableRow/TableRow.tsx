@@ -3,7 +3,7 @@ import Icon from "../Icon/Icon";
 import React, {CSSProperties, useState} from "react";
 import {Formik, FormikValues} from 'formik';
 import {OutlayRowRequest, OutlayRowUpdateRequest, TreeResponse} from "../../../models";
-import {createRow, deleteRow, getTreeData, updateRow} from "../../../api";
+import {createRow, deleteRow, updateRow} from "../../../api";
 import {removeItemFromTree, updateTree} from "./TableRow.service";
 
 interface rowProps {
@@ -11,10 +11,9 @@ interface rowProps {
     columnsData: TreeResponse,
     updateState: Function,
     isEmpty?: boolean,
-    parentId?: number | null
 }
 
-export function TableRow({style, columnsData, updateState, isEmpty = false, parentId = null}: rowProps) {
+export function TableRow({style, columnsData, updateState, isEmpty = false}: rowProps) {
     const [isHovered, setIsHovered] = useState(false);
     const [isEditable, setIsEditable] = useState(isEmpty);
 
@@ -44,10 +43,13 @@ export function TableRow({style, columnsData, updateState, isEmpty = false, pare
     }
 
     const createItem = (item: OutlayRowRequest) => {
-        createRow(item).then(() => {
-            getTreeData().then(r => {
-                updateState(r.data);
-            })
+        createRow(item).then((r) => {
+            if (columnsData.child) {
+
+            } else {
+                updateState((v: any) => [...v, r.data.current]);
+            }
+            setIsEditable(false);
         }).catch(() => {
             alert('Неверный id');
         })
@@ -69,7 +71,6 @@ export function TableRow({style, columnsData, updateState, isEmpty = false, pare
                 supportCosts: 0
             }
             createItem(item);
-            setIsEditable(false);
         } else {
             const item: OutlayRowUpdateRequest = {
                 equipmentCosts: Number(values.equipment),

@@ -40,7 +40,7 @@ export const updateTree = (tree: Array<TreeResponse>,
 
 export const removeItemFromTree = (tree: Array<TreeResponse>,
                                    id: number) => {
-    const result = [];
+    const result: Array<TreeResponse> = [];
     if (isArray(tree)) {
         for (let i = 0; i < tree.length; i++) {
             if (tree[i].id !== id) {
@@ -48,13 +48,11 @@ export const removeItemFromTree = (tree: Array<TreeResponse>,
             }
         }
         for (let i = 0; i < tree.length; i++) {
-            if (tree[i] !== null && tree[i].id !== id) {
-                tree[i].child = removeItemFromTree(tree[i].child!, id);
-            }
+            if (tree[i].child !== null && tree[i].id !== id) tree[i].child = removeItemFromTree(tree[i].child!, id);
         }
         return result;
     }
-    return [];
+    return null;
 }
 
 

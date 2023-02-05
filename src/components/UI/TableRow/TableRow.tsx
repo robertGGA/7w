@@ -38,7 +38,10 @@ export function TableRow({style, columnsData, updateState, isEmpty = false, main
     const removeItem = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         deleteRow(columnsData.id!).then(() => {
-            updateState((v: Array<TreeResponse>) => removeItemFromTree(v, columnsData.id!));
+            updateState((v: Array<TreeResponse>) => {
+                removeItemFromTree(v, columnsData.id!);
+                return removeItemFromTree(v, columnsData.id!)
+            });
         }).catch(() => {
             alert('Что-то пошло не так');
         })

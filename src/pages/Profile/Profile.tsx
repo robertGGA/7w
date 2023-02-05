@@ -1,11 +1,11 @@
 import styles from './Profile.style.module.sass';
-import {Menu} from "../../components/Menu/Menu";
 import {Project} from "../../components/Menu/Menu.types";
-import Icon from "../../components/UI/Icon/Icon";
-import {Table} from "../../components/Table/Table";
 import {useEffect, useState} from "react";
 import {getTreeData} from "../../api";
 import {TreeResponse} from "../../models";
+import {Table} from "../../components/Table/Table";
+import Icon from "../../components/UI/Icon/Icon";
+import {Menu} from "../../components/Menu/Menu";
 
 export function Profile() {
     const menuData: Array<Project> = [
@@ -52,7 +52,7 @@ export function Profile() {
                     </span>
                 </div>
 
-                <Table updateState={setTree} data={tree} />
+                <Table updateState={setTree} mainTree={tree} tree={tree} />
             </div>
         </main>
     )

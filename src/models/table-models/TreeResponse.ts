@@ -1,8 +1,8 @@
 export type TreeResponse = {
-    child: any,
+    child: Array<TreeResponse> | null,
     equipmentCosts: number
     estimatedProfit: number
-    id: number
+    id: number | null
     machineOperatorSalary: number
     mainCosts: number
     materials: number

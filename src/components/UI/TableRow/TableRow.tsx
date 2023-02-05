@@ -4,18 +4,20 @@ import React, {CSSProperties, useState} from "react";
 import {Formik, FormikValues} from 'formik';
 import {OutlayRowRequest, OutlayRowUpdateRequest, TreeResponse} from "../../../models";
 import {createRow, deleteRow, updateRow} from "../../../api";
-import {removeItemFromTree, updateTree} from "./TableRow.service";
+import {findParent, removeItemFromTree, updateTree} from "./TableRow.service";
 
 interface rowProps {
     style?: CSSProperties,
     columnsData: TreeResponse,
     updateState: Function,
     isEmpty?: boolean,
+    mainTree?: Array<TreeResponse>
 }
 
-export function TableRow({style, columnsData, updateState, isEmpty = false}: rowProps) {
+export function TableRow({style, columnsData, updateState, isEmpty = false, mainTree}: rowProps) {
     const [isHovered, setIsHovered] = useState(false);
     const [isEditable, setIsEditable] = useState(isEmpty);
+    const [row, setRow] = useState(columnsData);
 
     const dragStartHandler = (e: React.MouseEvent<HTMLDivElement>) => {
         setIsHovered(true);
@@ -33,10 +35,10 @@ export function TableRow({style, columnsData, updateState, isEmpty = false}: row
         e.preventDefault();
     }
 
-    const removeItem = (e: any) => {
+    const removeItem = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
-        deleteRow(columnsData.id).then(() => {
-            updateState((v: Array<TreeResponse>) => removeItemFromTree(v, columnsData.id));
+        deleteRow(columnsData.id!).then(() => {
+            updateState((v: Array<TreeResponse>) => removeItemFromTree(v, columnsData.id!));
         }).catch(() => {
             alert('Что-то пошло не так');
         })
@@ -44,35 +46,61 @@ export function TableRow({style, columnsData, updateState, isEmpty = false}: row
 
     const createItem = (item: OutlayRowRequest) => {
         createRow(item).then((r) => {
-            if (columnsData.child) {
-
+            if (columnsData.id === null) {
+                updateState([...updateTree(mainTree!, null, r.data.current)]);
             } else {
-                updateState((v: any) => [...v, r.data.current]);
+                updateState([r.data.current]);
             }
+            setRow(r.data.current)
             setIsEditable(false);
         }).catch(() => {
             alert('Неверный id');
         })
     }
 
-    const onSubmitRow = (values: FormikValues) => {
-        if (isEmpty) {
-            const item: OutlayRowRequest = {
-                equipmentCosts: Number(values.equipment),
-                estimatedProfit: Number(values.profit),
-                machineOperatorSalary: 0,
-                mainCosts: 0,
-                materials: 0,
-                mimExploitation: 0,
-                overheads: Number(values.expenses),
-                parentId: null,
-                rowName: values.work,
-                salary: Number(values.salary),
-                supportCosts: 0
-            }
-            createItem(item);
+    const createChildRow = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        const emptyRow: TreeResponse = {
+            equipmentCosts: 0,
+            estimatedProfit: 0,
+            machineOperatorSalary: 0,
+            id: null,
+            mainCosts: 0,
+            materials: 0,
+            mimExploitation: 0,
+            overheads: 0,
+            rowName: '',
+            salary: 0,
+            supportCosts: 0,
+            total: 0,
+            child: null
+        }
+        if (columnsData.child) {
+            columnsData.child?.push(emptyRow);
         } else {
-            const item: OutlayRowUpdateRequest = {
+            columnsData.child = [emptyRow];
+        }
+        updateState(updateTree(mainTree!, null, emptyRow));
+    }
+
+    const onSubmitRow = (values: FormikValues) => {
+        if (isEmpty || columnsData.id === null) {
+            const newRow: OutlayRowRequest = {
+                equipmentCosts: Number(values.equipment),
+                estimatedProfit: Number(values.profit),
+                machineOperatorSalary: 0,
+                mainCosts: 0,
+                materials: 0,
+                mimExploitation: 0,
+                overheads: Number(values.expenses),
+                parentId: findParent(mainTree!, null)?.id,
+                rowName: values.work,
+                salary: Number(values.salary),
+                supportCosts: 0
+            }
+            createItem(newRow);
+        } else {
+            const updatedRow: OutlayRowUpdateRequest = {
                 equipmentCosts: Number(values.equipment),
                 estimatedProfit: Number(values.profit),
                 machineOperatorSalary: 0,
@@ -84,10 +112,10 @@ export function TableRow({style, columnsData, updateState, isEmpty = false}: row
                 salary: Number(values.salary),
                 supportCosts: 0
             }
-            updateRow(columnsData.id, item).then(() => {
-                updateState((v: any) => {
-                    return updateTree(v, columnsData.id, item)
-                });
+
+            updateRow(columnsData.id!, updatedRow).then((r) => {
+                updateState(updateTree(mainTree!, columnsData.id!, r.data.current));
+                setRow(r.data.current);
                 setIsEditable(false);
             }).catch(() => {
                 alert('Неверный id');
@@ -98,11 +126,11 @@ export function TableRow({style, columnsData, updateState, isEmpty = false}: row
     return (
         <Formik
             initialValues={{
-                work: columnsData.rowName ?? '',
-                salary: columnsData.salary ?? 0,
-                equipment: columnsData.equipmentCosts ?? 0,
-                expenses: columnsData.overheads ?? 0,
-                profit: columnsData.estimatedProfit ?? 0
+                work: row.rowName ?? '',
+                salary: row.salary ?? 0,
+                equipment: row.equipmentCosts ?? 0,
+                expenses: row.overheads ?? 0,
+                profit: row.estimatedProfit ?? 0
             }}
             enableReinitialize
             onSubmit={(values) => {
@@ -128,7 +156,9 @@ export function TableRow({style, columnsData, updateState, isEmpty = false}: row
                             <Icon name='level' width={16} height={16}/>
                         </div> :
                         <div style={style} className={styles.delete__container} onMouseLeave={(e) => dragEndHandler(e)}>
-                            <Icon name='level' width={16} height={16}/>
+                            <button onClick={(e) => createChildRow(e)}>
+                                <Icon name='level' width={16} height={16}/>
+                            </button>
                             <button onClick={(e) => removeItem(e)}>
                                 <Icon name='trash' width={16} height={16}/>
                             </button>

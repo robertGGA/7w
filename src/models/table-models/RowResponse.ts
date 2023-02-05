@@ -1,13 +1,14 @@
-export type OutlayRowRequest = {
+export type RowResponse = {
     equipmentCosts: number,
     estimatedProfit: number,
+    id: number,
     machineOperatorSalary: number,
     mainCosts: number,
     materials: number,
     mimExploitation: number,
     overheads: number,
-    parentId: number | null | undefined,
     rowName: string,
     salary: number,
-    supportCosts: number
+    supportCosts: number,
+    total: number
 }

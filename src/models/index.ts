@@ -4,3 +4,4 @@
 export type {OutlayRowRequest} from './table-models/OutlayRowRequest';
 export type {TreeResponse} from './table-models/TreeResponse';
 export type {OutlayRowUpdateRequest} from './table-models/OutlayRowUpdateRequest';
+export type {RowResponse} from './table-models/RowResponse'

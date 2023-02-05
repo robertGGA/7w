@@ -1,60 +1,79 @@
-import * as Yup from 'yup';
-import {OutlayRowRequest, OutlayRowUpdateRequest, TreeResponse} from "../../../models";
+import {OutlayRowRequest, OutlayRowUpdateRequest, RowResponse, TreeResponse} from "../../../models";
 import {isArray} from "util";
 
-export const RowSchema = Yup.object().shape({
-    salary: Yup.number()
-        .required('Required'),
-    equipment: Yup.number()
-        .required('Required'),
-    expanses: Yup.number()
-        .required('Required'),
-    profit: Yup.number()
-        .required('Required'),
-    work: Yup.string().min(2).max(25).required(),
-});
-
 export const updateTree = (tree: Array<TreeResponse>,
-                           id: number,
-                           newValue: OutlayRowUpdateRequest | OutlayRowRequest) => {
-    if (isArray(tree)) {
-        let result = [...tree];
-
-        result.forEach((item) => {
-            if (item.id === id) {
-                item = {
-                    ...item,
-                    rowName: newValue.rowName,
-                    salary: newValue.salary,
-                    equipmentCosts: newValue.equipmentCosts,
-                    estimatedProfit: newValue.estimatedProfit,
-                    overheads: newValue.overheads
-                };
-                result = result.map(res => res.id === item.id ? item : res);
-            } else {
-                if (tree.every(item => item.id === id) && isArray(tree)) item.child = updateTree(item.child, id, newValue);
-                result = result.map(res => res.id === item.id ? item : res);
+                           id: number | null,
+                           newValue: OutlayRowUpdateRequest | OutlayRowRequest | RowResponse) => {
+    let result = [...tree];
+    result = result.map((item) => {
+        if (item.id === null) {
+            const data = newValue as RowResponse;
+            item = {
+                ...item,
+                rowName: newValue.rowName,
+                salary: newValue.salary,
+                equipmentCosts: newValue.equipmentCosts,
+                estimatedProfit: newValue.estimatedProfit,
+                overheads: newValue.overheads,
+                id: data.id,
+                child: null
             }
-        })
-        return result;
-    }
+        }
+        if (item.id === id) {
+            item = {
+                ...item,
+                rowName: newValue.rowName,
+                salary: newValue.salary,
+                equipmentCosts: newValue.equipmentCosts,
+                estimatedProfit: newValue.estimatedProfit,
+                overheads: newValue.overheads,
+            };
+        }
+        if (item.child?.length) {
+            item.child = updateTree(item.child!, id, newValue);
+        }
+        return item;
+    })
+    return result;
 }
 
-export const removeItemFromTree = (tree: Array<TreeResponse>,
-                           id: number) => {
-    if (isArray(tree)) {
-        let result = [...tree];
 
-        result.forEach((item) => {
-            if (item.id === id) {
-                result = result.filter((item => item.id !== id));
-            } else {
-                if (tree.every(item => item.id === id) && isArray(tree)) { // @ts-ignore
-                    result = removeItemFromTree(item.child, id);
-                }
+export const removeItemFromTree = (tree: Array<TreeResponse>,
+                                   id: number) => {
+    const result = [];
+    if (isArray(tree)) {
+        for (let i = 0; i < tree.length; i++) {
+            if (tree[i].id !== id) {
+                result.push({...tree[i]});
             }
-        })
+        }
+        for (let i = 0; i < tree.length; i++) {
+            if (tree[i] !== null && tree[i].id !== id) {
+                tree[i].child = removeItemFromTree(tree[i].child!, id);
+            }
+        }
         return result;
     }
+    return [];
+}
+
+
+// @ts-ignore
+export const findParent = (tree: Array<TreeResponse> | null, childId: number | null, prevRow: TreeResponse | null = null) => {
+    let childParent: TreeResponse | null = null;
+    if (isArray(tree)) {
+        for (let i = 0; i < tree.length; i++) {
+            if (tree[i].id === childId) {
+                return prevRow;
+            }
+        }
+        for (let i = 0; i < tree.length; i++) {
+            childParent = findParent(tree[i].child, childId, tree[i]);
+            if (childParent !== null) return childParent;
+        }
+        return childParent;
+    }
+
+    return prevRow ? prevRow : null;
 }
 

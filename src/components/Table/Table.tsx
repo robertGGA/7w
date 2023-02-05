@@ -4,14 +4,15 @@ import {CSSProperties, useCallback} from "react";
 import {TreeResponse} from "../../models";
 
 interface TableData {
-    data: Array<TreeResponse> | undefined,
+    tree: Array<TreeResponse> | undefined,
     nesting?: number,
     style?: CSSProperties,
-    updateState: Function
+    updateState: Function,
+    mainTree: Array<TreeResponse> | undefined
 }
 
-export function Table({data, nesting = 0, style, updateState}: TableData) {
-    const cachedFunc = useCallback(updateState, [data?.length])
+export function Table({tree, nesting = 0, style, updateState, mainTree}: TableData) {
+    const cachedFunc = useCallback(updateState, [tree?.length]);
 
     return (
         <div className={(nesting === 0) ? styles.table : styles.table__nested}>
@@ -36,17 +37,19 @@ export function Table({data, nesting = 0, style, updateState}: TableData) {
                 </div>
             </div>}
             <>
-                {data?.length ? data.map((item: TreeResponse) => (
-                        <div key={item.id}>
-                            <TableRow  style={style} updateState={cachedFunc}
-                                      columnsData={item}/>
+                {tree?.length ? tree.map((item: TreeResponse, index) => (
+                        <div key={item.id ? item.id : index}>
+                            {item.id ? <TableRow mainTree={mainTree} style={style} updateState={cachedFunc}
+                                                 columnsData={item}/> :
+                                <TableRow isEmpty={true} mainTree={mainTree} style={style} updateState={cachedFunc}
+                                          columnsData={item}/>}
                             {(item.child && item.child.length) ?
-                                <Table key={item.id} updateState={updateState} style={{marginLeft: 12 * (nesting + 1)}}
+                                <Table updateState={updateState} style={{marginLeft: 12 * (nesting + 1)}}
                                        nesting={nesting + 1}
-                                       data={item.child}/> : null}
+                                       tree={item.child} mainTree={mainTree}/> : null}
                         </div>
                     )) :
-                    <TableRow  isEmpty={true} style={style} updateState={cachedFunc} columnsData={{} as TreeResponse}/>
+                    <TableRow isEmpty={true} style={style} updateState={cachedFunc} columnsData={{} as TreeResponse}/>
                 }
             </>
         </div>
